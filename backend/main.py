@@ -26,6 +26,7 @@ from src.appointments.router import appointments_router
 from src.reviews.router import reviews_router
 from src.cities.router import cities_router
 from src.specializations.router import specializations_router
+from src.ai.router import ai_router
 
 Base.metadata.create_all(bind=engine)
 
@@ -55,6 +56,7 @@ app.include_router(appointments_router)
 app.include_router(reviews_router)
 app.include_router(cities_router)
 app.include_router(specializations_router)
+app.include_router(ai_router)
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)

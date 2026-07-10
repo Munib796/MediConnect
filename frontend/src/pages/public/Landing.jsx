@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, ShieldCheck, Ticket, Star } from "lucide-react";
+import { Search, ShieldCheck, Ticket, Star, Sparkles } from "lucide-react";
 import { api } from "../../lib/api";
-import { Button, Select } from "../../components/ui";
+import { Button, Select, TextArea, Alert } from "../../components/ui";
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -21,6 +21,34 @@ export default function Landing() {
     const params = new URLSearchParams();
     if (cityId) params.set("city_id", cityId);
     if (specializationId) params.set("specialization_id", specializationId);
+    navigate(`/search?${params.toString()}`);
+  }
+
+  const [showSymptomChecker, setShowSymptomChecker] = useState(false);
+  const [symptoms, setSymptoms] = useState("");
+  const [checking, setChecking] = useState(false);
+  const [suggestion, setSuggestion] = useState(null);
+  const [checkError, setCheckError] = useState("");
+
+  async function handleSymptomCheck(e) {
+    e.preventDefault();
+    setCheckError("");
+    setSuggestion(null);
+    setChecking(true);
+    try {
+      const res = await api.post("/ai/symptom-check", { symptoms });
+      setSuggestion(res.data);
+    } catch (err) {
+      setCheckError("Couldn't check that right now. Please try searching manually instead.");
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  function goToSuggestedSearch(specializationId) {
+    const params = new URLSearchParams();
+    if (cityId) params.set("city_id", cityId);
+    params.set("specialization_id", specializationId);
     navigate(`/search?${params.toString()}`);
   }
 
@@ -61,6 +89,59 @@ export default function Landing() {
                 <Search size={16} /> Search
               </Button>
             </form>
+
+            <div className="mt-3">
+              {!showSymptomChecker ? (
+                <button
+                  type="button"
+                  onClick={() => setShowSymptomChecker(true)}
+                  className="flex items-center gap-1.5 text-sm font-medium text-teal hover:underline"
+                >
+                  <Sparkles size={14} /> Not sure which specialist you need?
+                </button>
+              ) : (
+                <form onSubmit={handleSymptomCheck} className="ticket-stub mt-2 flex flex-col gap-3 p-5">
+                  <p className="text-sm font-medium text-ink">Describe how you're feeling</p>
+                  <TextArea
+                    value={symptoms}
+                    onChange={(e) => setSymptoms(e.target.value)}
+                    placeholder="e.g. chest tightness and shortness of breath for two days"
+                    rows={2}
+                    required
+                  />
+                  <Button type="submit" disabled={checking} className="self-start">
+                    {checking ? "Checking..." : "Suggest a specialist"}
+                  </Button>
+
+                  {checkError && <Alert>{checkError}</Alert>}
+
+                  {suggestion && (
+                    <div className="mt-1">
+                      {suggestion.possible_emergency ? (
+                        <Alert>{suggestion.note}</Alert>
+                      ) : (
+                        <p className="text-xs text-slate">{suggestion.note}</p>
+                      )}
+
+                      {suggestion.specializations.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {suggestion.specializations.map((s) => (
+                            <button
+                              key={s.id}
+                              type="button"
+                              onClick={() => goToSuggestedSearch(s.id)}
+                              className="rounded-full border border-teal bg-teal-light px-3 py-1.5 text-sm font-medium text-teal-dark hover:bg-teal/20"
+                            >
+                              {s.name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </form>
+              )}
+            </div>
           </div>
 
           <div className="hidden md:block">

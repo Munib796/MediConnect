@@ -29,5 +29,6 @@ class Settings(BaseSettings):
     STRIPE_PUBLISHABLE_KEY: str
     STRIPE_WEBHOOK_SECRET: str
 
+    GEMINI_API_KEY: str
 
 settings = Settings()
