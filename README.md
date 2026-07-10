@@ -1,6 +1,6 @@
 # MediConnect
 
-A full-stack hospital and doctor appointment booking platform built for the Pakistani market (Karachi context). MediConnect connects patients with doctors across multiple hospitals, with dedicated portals for patients, doctors, and administrators.
+A full-stack hospital and doctor appointment booking platform built for the Pakistani market. MediConnect connects patients with doctors across multiple hospitals, with dedicated portals for patients, doctors, and administrators.
 
 ## Features
 
@@ -34,34 +34,6 @@ All three portals are strictly role-separated — a user logged into one cannot 
 **Frontend:** React 19, Vite, Tailwind CSS, React Router v7, Axios
 
 **Integrations:** Stripe (online payments), Cloudinary (image uploads), fastapi-mail (transactional emails)
-
-## Project Structure
-
-├── backend/
-│   ├── src/
-│   │   ├── admin/
-│   │   ├── appointments/
-│   │   ├── cities/
-│   │   ├── doctor_hospitals/
-│   │   ├── doctors/
-│   │   ├── hospitals/
-│   │   ├── patients/
-│   │   ├── reviews/
-│   │   ├── specializations/
-│   │   └── utils/
-│   ├── main.py
-│   ├── requirements.txt
-│   └── docker-compose.yml
-└── frontend/
-└── src/
-├── components/
-├── context/
-├── lib/
-└── pages/
-├── admin/
-├── doctor/
-├── patient/
-└── public/
 
 ## Getting Started
 
