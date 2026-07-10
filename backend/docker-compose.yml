@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15
+    container_name: medibook-db
+    restart: always
+    environment:
+      POSTGRES_DB: medibook
+      POSTGRES_USER: medibook_user
+      POSTGRES_PASSWORD: medibook_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - medibook_data:/var/lib/postgresql/data
+
+  adminer:
+    image: adminer
+    container_name: medibook-adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+volumes:
+  medibook_data:

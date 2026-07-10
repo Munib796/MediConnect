@@ -1,0 +1,14 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+pydantic-settings
+pyjwt
+pwdlib[argon2]
+pydantic[email]
+slowapi
+fastapi-mail
+python-multipart
+cloudinary
+stripe
+alembic

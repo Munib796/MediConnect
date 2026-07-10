@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: #F4F7F5;
+  color: #10241F;
+  font-family: 'Public Sans', sans-serif;
+}
+
+.font-display {
+  font-family: 'Fraunces', serif;
+}
+
+/* Ticket stub component: perforated edge look for confirmations/token displays */
+.ticket-stub {
+  position: relative;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 1px 2px rgba(16, 36, 31, 0.06), 0 4px 16px rgba(16, 36, 31, 0.06);
+}
+
+.ticket-stub::before,
+.ticket-stub::after {
+  content: "";
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: #F4F7F5;
+  border-radius: 50%;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.ticket-stub::before {
+  left: -10px;
+}
+
+.ticket-stub::after {
+  right: -10px;
+}
+
+.ticket-divider {
+  border-top: 2px dashed #D8E0DD;
+}
+
+.token-number {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* subtle scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #D8E0DD;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}

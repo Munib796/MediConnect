@@ -1,0 +1,17 @@
+# Python / backend
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.env
+
+# Node / frontend
+node_modules/
+frontend/dist/
+frontend/.env
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
