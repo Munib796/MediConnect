@@ -1,6 +1,6 @@
 # MediConnect
 
-A full-stack hospital and doctor appointment booking platform built for the Pakistani market (Karachi context). MediConnect connects patients with doctors across multiple hospitals, with dedicated portals for patients, doctors, and administrators.
+A full-stack hospital and doctor appointment booking platform built for the Pakistani market. MediConnect connects patients with doctors across multiple hospitals, with dedicated portals for patients, doctors, and administrators.
 
 ## Features
 
