@@ -62,7 +62,6 @@ All three portals are strictly role-separated — a user logged into one cannot 
 ├── doctor/
 ├── patient/
 └── public/
-
 ## Getting Started
 
 ### Prerequisites
