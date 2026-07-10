@@ -35,33 +35,6 @@ All three portals are strictly role-separated — a user logged into one cannot 
 
 **Integrations:** Stripe (online payments), Cloudinary (image uploads), fastapi-mail (transactional emails)
 
-## Project Structure
-
-├── backend/
-│   ├── src/
-│   │   ├── admin/
-│   │   ├── appointments/
-│   │   ├── cities/
-│   │   ├── doctor_hospitals/
-│   │   ├── doctors/
-│   │   ├── hospitals/
-│   │   ├── patients/
-│   │   ├── reviews/
-│   │   ├── specializations/
-│   │   └── utils/
-│   ├── main.py
-│   ├── requirements.txt
-│   └── docker-compose.yml
-└── frontend/
-└── src/
-├── components/
-├── context/
-├── lib/
-└── pages/
-├── admin/
-├── doctor/
-├── patient/
-└── public/
 ## Getting Started
 
 ### Prerequisites
