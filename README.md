@@ -5,35 +5,41 @@ A full-stack hospital and doctor appointment booking platform built for the Paki
 ## Features
 
 ### Patient Portal
-- Search doctors by city and specialization
-- Browse hospitals and see doctors affiliated with each
+- **AI Booking Assistant** — conversational Gemini-powered chatbot helps patients find the right doctor and book appointments through natural language
+- Search doctors by city and specialization across Pakistan
+- Browse hospitals and see doctors affiliated with each location
 - Book appointments (cash or online payment via Stripe)
-- Token-based queue system — no guessing your place in line
+- **Token-based queue system** — real-time queue tracker shows your position with no guessing
 - View appointment history and leave reviews for completed visits
 - Email confirmations for bookings
+- Accessible, mobile-first design with smooth animations and keyboard navigation
 
 ### Doctor Portal
 - Apply to hospitals with fee, schedule, and capacity details (document upload required)
-- Track application status (pending / approved / rejected)
+- Track application status (pending / approved / rejected) with real-time updates
 - Toggle availability at approved hospitals
-- View and manage appointments
+- View and manage appointments with token numbers
 - Mark appointments complete (only once payment is received)
-- Profile management with photo upload
+- Profile management with photo upload via Cloudinary
+- Dedicated dark-themed professional interface
 
 ### Admin Portal
+- **Polished dashboard** with at-a-glance platform stats and action items
 - Manage cities, specializations, and hospitals (with image upload)
 - Review and approve/reject doctor-hospital affiliation applications
 - Oversee all appointments platform-wide (mark cash payments as paid, remove bookings)
-- Dashboard with at-a-glance platform stats
+- Accessible CRUD operations with confirmation dialogs and keyboard support
+- Mobile-responsive admin panel with hamburger navigation
 
-All three portals are strictly role-separated — a user logged into one cannot access the other two until they log out.
+All three portals are strictly role-separated — a user logged into one cannot access the other two until they log out. Each portal has a context-aware footer tailored to its audience.
 
 ## Tech Stack
 
 **Backend:** FastAPI, SQLAlchemy, Alembic, PostgreSQL
-**Frontend:** React 19, Vite, Tailwind CSS, React Router v7, Axios
 
-**Integrations:** Stripe (online payments), Cloudinary (image uploads), fastapi-mail (transactional emails)
+**Frontend:** React 19, Vite, Tailwind CSS, React Router v7, Axios, lucide-react (icons)
+
+**Integrations:** Stripe (online payments), Cloudinary (image uploads), fastapi-mail (transactional emails), Google Gemini (AI booking assistant)
 
 ## Getting Started
 
@@ -47,12 +53,12 @@ All three portals are strictly role-separated — a user logged into one cannot 
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+source venv/bin/activate
 pip install -r requirements.txt
 
-docker-compose up -d       # starts Postgres + Adminer
+docker-compose up -d      
 
-cp .env.example .env       # fill in your actual values
+cp .env.example .env       
 alembic upgrade head
 uvicorn main:app --reload
 ```

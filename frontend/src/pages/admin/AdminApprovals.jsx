@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { api, withAuth, extractErrorMessage } from "../../lib/api";
 import { Card, Badge, Button, Spinner, Alert } from "../../components/ui";
 import { FileText } from "lucide-react";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 const PAGE_SIZE = 10;
 
 export default function AdminApprovals() {
+  usePageTitle("Doctor Approvals");
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [skip, setSkip] = useState(0);

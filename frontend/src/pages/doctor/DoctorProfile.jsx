@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { api, withAuth, extractErrorMessage } from "../../lib/api";
 import { Button, Input, Select, TextArea, Alert, Spinner, Badge } from "../../components/ui";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 export default function DoctorProfile() {
+  usePageTitle("My Profile");
   const [profile, setProfile] = useState(null);
   const [specializations, setSpecializations] = useState([]);
   const [form, setForm] = useState(null);

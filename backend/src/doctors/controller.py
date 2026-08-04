@@ -1,5 +1,6 @@
 from fastapi import HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
+import re
 
 from src.doctor_hospitals.models import DoctorHospital, AffiliationStatus
 from src.hospitals.models import Hospital
@@ -132,7 +133,7 @@ def reset_doctor_password(request_data: ResetPasswordRequest, db: Session) -> di
     return {"message": "Password reset successfully. You can now log in with your new password."}
 
 
-def search_doctors(db: Session, city_id: int = None, specialization_id: int = None, skip: int = 0, limit: int = 20) -> dict:
+def search_doctors(db: Session, city_id: int = None, specialization_id: int = None, doctor_name: str = None, hospital_name: str = None, skip: int = 0, limit: int = 20) -> dict:
     query = db.query(DoctorHospital).join(Hospital).join(Doctor).filter(
         DoctorHospital.status == AffiliationStatus.approved,
         DoctorHospital.is_available == True,
@@ -142,6 +143,22 @@ def search_doctors(db: Session, city_id: int = None, specialization_id: int = No
         query = query.filter(Hospital.city_id == city_id)
     if specialization_id:
         query = query.filter(Doctor.specialization_id == specialization_id)
+    if doctor_name:
+        # Patients/LLM callers inconsistently include "Dr"/"Dr." — strip it
+        # so matching doesn't depend on whether the title was included.
+        cleaned_name = re.sub(r"(?i)^\s*dr\.?\s+", "", doctor_name.strip())
+        query = query.filter(Doctor.name.ilike(f"%{cleaned_name}%"))
+    if hospital_name:
+        # Callers (including the AI agent) often say "X Hospital" even when
+        # the stored name is just "X" -- strip a trailing generic word so
+        # the search isn't defeated by a suffix the data doesn't have.
+        # This only ever widens the match, never narrows it.
+        cleaned_hospital = re.sub(
+            r"(?i)\s*(hospital|clinic|medical center|medical centre)\s*$",
+            "",
+            hospital_name.strip(),
+        ).strip() or hospital_name.strip()
+        query = query.filter(Hospital.name.ilike(f"%{cleaned_hospital}%"))
 
     total = query.count()
     affiliations = query.offset(skip).limit(limit).all()
@@ -172,6 +189,7 @@ def search_doctors(db: Session, city_id: int = None, specialization_id: int = No
             "hospital_name": hospital.name,
             "hospital_address": hospital.address,
             "city_id": hospital.city_id,
+            "city_name": hospital.city.name,
         })
 
     return {"total": total, "skip": skip, "limit": limit, "items": results}

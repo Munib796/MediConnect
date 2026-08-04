@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { usePatientAuth } from "../../context/PatientAuthContext";
 import { extractErrorMessage } from "../../lib/api";
 import { Button, Input, Alert } from "../../components/ui";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 export default function Signup() {
+  usePageTitle("Sign Up");
   const { signup } = usePatientAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "", name: "", phone_number: "" });

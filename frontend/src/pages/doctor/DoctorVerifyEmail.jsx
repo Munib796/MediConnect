@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { api, extractErrorMessage } from "../../lib/api";
 import { Spinner } from "../../components/ui";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 export default function DoctorVerifyEmail() {
+  usePageTitle("Verify Email");
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   const [status, setStatus] = useState("loading");

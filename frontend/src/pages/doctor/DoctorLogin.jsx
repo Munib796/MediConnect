@@ -3,8 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDoctorAuth } from "../../context/DoctorAuthContext";
 import { extractErrorMessage } from "../../lib/api";
 import { Button, Input, Alert } from "../../components/ui";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 export default function DoctorLogin() {
+  usePageTitle("Doctor Log In");
   const { login } = useDoctorAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { usePageTitle } from "../../lib/usePageTitle";
 import { useSearchParams } from "react-router-dom";
 import { Search } from "lucide-react";
 import { api } from "../../lib/api";
@@ -8,6 +9,7 @@ import { Select, Spinner, Button } from "../../components/ui";
 const PAGE_SIZE = 12;
 
 export default function HospitalsList() {
+  usePageTitle("Find Hospitals");
   const [searchParams, setSearchParams] = useSearchParams();
   const [cities, setCities] = useState([]);
   const [hospitals, setHospitals] = useState([]);

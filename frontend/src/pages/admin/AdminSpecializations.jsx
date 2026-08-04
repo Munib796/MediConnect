@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
 import { api, withAuth, extractErrorMessage } from "../../lib/api";
 import { Button, Input, Card, Alert, Spinner } from "../../components/ui";
-import { Trash2, Pencil, Check, X } from "lucide-react";
+import ConfirmDialog from "../../components/ConfirmDialog";
+import { usePageTitle } from "../../lib/usePageTitle";
+import { Trash2, Pencil, Check, X, Stethoscope } from "lucide-react";
+
+// Shared base for the small round icon buttons — includes focus-visible rings
+// for keyboard accessibility.
+const ICON_BTN =
+  "rounded-full p-2 outline-none transition-colors focus-visible:ring-2 focus-visible:ring-teal/40";
 
 export default function AdminSpecializations() {
+  usePageTitle("Manage Specializations");
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -11,6 +19,8 @@ export default function AdminSpecializations() {
   const [creating, setCreating] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState("");
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     load();
@@ -56,14 +66,18 @@ export default function AdminSpecializations() {
     }
   }
 
-  async function handleDelete(id) {
-    if (!confirm("Delete this specialization? This can't be undone.")) return;
+  async function confirmDelete() {
+    const id = pendingDelete;
     setError("");
+    setDeleting(true);
     try {
       await api.delete(`/admin/specializations/${id}`, withAuth("admin"));
+      setPendingDelete(null);
       load();
     } catch (err) {
       setError(extractErrorMessage(err));
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -88,6 +102,16 @@ export default function AdminSpecializations() {
 
       {loading ? (
         <div className="flex justify-center py-16 text-teal"><Spinner /></div>
+      ) : items.length === 0 ? (
+        <Card className="mt-8 flex flex-col items-center gap-4 p-12 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-teal-light text-teal">
+            <Stethoscope size={26} />
+          </span>
+          <div>
+            <p className="font-display text-lg font-semibold text-ink">No specializations yet</p>
+            <p className="mt-1 text-sm text-slate">Add your first specialization using the form above.</p>
+          </div>
+        </Card>
       ) : (
         <div className="mt-8 flex flex-col gap-3">
           {items.map((item) => (
@@ -102,13 +126,15 @@ export default function AdminSpecializations() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => saveEdit(item.id)}
-                      className="rounded-full bg-teal-light p-2 text-teal-dark hover:bg-teal/20"
+                      aria-label="Save"
+                      className={`${ICON_BTN} bg-teal-light text-teal-dark hover:bg-teal/20`}
                     >
                       <Check size={16} />
                     </button>
                     <button
                       onClick={() => setEditingId(null)}
-                      className="rounded-full bg-paper p-2 text-slate hover:bg-slate-light/30"
+                      aria-label="Cancel"
+                      className={`${ICON_BTN} bg-paper text-slate hover:bg-slate-light/30`}
                     >
                       <X size={16} />
                     </button>
@@ -120,13 +146,15 @@ export default function AdminSpecializations() {
                   <div className="flex gap-2">
                     <button
                       onClick={() => startEdit(item)}
-                      className="rounded-full bg-paper p-2 text-slate hover:bg-teal-light hover:text-teal-dark"
+                      aria-label={`Edit ${item.name}`}
+                      className={`${ICON_BTN} bg-paper text-slate hover:bg-teal-light hover:text-teal-dark`}
                     >
                       <Pencil size={16} />
                     </button>
                     <button
-                      onClick={() => handleDelete(item.id)}
-                      className="rounded-full bg-paper p-2 text-slate hover:bg-coral-light hover:text-coral"
+                      onClick={() => setPendingDelete(item.id)}
+                      aria-label={`Delete ${item.name}`}
+                      className={`${ICON_BTN} bg-paper text-slate hover:bg-coral-light hover:text-coral`}
                     >
                       <Trash2 size={16} />
                     </button>
@@ -135,9 +163,18 @@ export default function AdminSpecializations() {
               )}
             </Card>
           ))}
-          {items.length === 0 && <p className="text-slate">No specializations yet.</p>}
         </div>
       )}
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete specialization?"
+        message="Doctors linked to this specialization may be affected. This can't be undone."
+        confirmLabel="Delete"
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }

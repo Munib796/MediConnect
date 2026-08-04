@@ -1,6 +1,8 @@
+import { twMerge } from "tailwind-merge";
+
 export function Button({ children, variant = "primary", className = "", ...props }) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-full font-semibold text-sm px-6 py-3 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center gap-2 rounded-full font-semibold text-sm px-6 py-3 transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-teal/40 focus-visible:ring-offset-2 focus-visible:ring-offset-paper active:translate-y-px disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0";
   const variants = {
     primary: "bg-teal text-white hover:bg-teal-dark shadow-sm hover:shadow-md",
     accent: "bg-marigold text-ink hover:bg-marigold-dark shadow-sm hover:shadow-md",
@@ -9,20 +11,24 @@ export function Button({ children, variant = "primary", className = "", ...props
     danger: "bg-coral text-white hover:bg-coral/90",
   };
   return (
-    <button className={`${base} ${variants[variant]} ${className}`} {...props}>
+    <button className={twMerge(base, variants[variant], className)} {...props}>
       {children}
     </button>
   );
 }
 
-export function Input({ label, error, className = "", ...props }) {
+export function Input({ label, error, valid, className = "", ...props }) {
+  const state = error
+    ? "border-coral focus:border-coral focus:ring-coral/20"
+    : valid
+    ? "border-sage focus:border-sage focus:ring-sage/20"
+    : "border-slate-light/50 focus:border-teal focus:ring-teal/20";
   return (
     <label className="block">
       {label && <span className="mb-1.5 block text-sm font-medium text-ink">{label}</span>}
       <input
-        className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-colors placeholder:text-slate-light focus:border-teal ${
-          error ? "border-coral" : "border-slate-light/50"
-        } ${className}`}
+        aria-invalid={error ? "true" : undefined}
+        className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-shadow transition-colors placeholder:text-slate-light focus:ring-2 ${state} ${className}`}
         {...props}
       />
       {error && <span className="mt-1 block text-xs text-coral">{error}</span>}
@@ -30,14 +36,18 @@ export function Input({ label, error, className = "", ...props }) {
   );
 }
 
-export function TextArea({ label, error, className = "", ...props }) {
+export function TextArea({ label, error, valid, className = "", ...props }) {
+  const state = error
+    ? "border-coral focus:border-coral focus:ring-coral/20"
+    : valid
+    ? "border-sage focus:border-sage focus:ring-sage/20"
+    : "border-slate-light/50 focus:border-teal focus:ring-teal/20";
   return (
     <label className="block">
       {label && <span className="mb-1.5 block text-sm font-medium text-ink">{label}</span>}
       <textarea
-        className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-colors placeholder:text-slate-light focus:border-teal ${
-          error ? "border-coral" : "border-slate-light/50"
-        } ${className}`}
+        aria-invalid={error ? "true" : undefined}
+        className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-shadow transition-colors placeholder:text-slate-light focus:ring-2 ${state} ${className}`}
         {...props}
       />
       {error && <span className="mt-1 block text-xs text-coral">{error}</span>}
@@ -45,14 +55,18 @@ export function TextArea({ label, error, className = "", ...props }) {
   );
 }
 
-export function Select({ label, error, className = "", children, ...props }) {
+export function Select({ label, error, valid, className = "", children, ...props }) {
+  const state = error
+    ? "border-coral focus:border-coral focus:ring-coral/20"
+    : valid
+    ? "border-sage focus:border-sage focus:ring-sage/20"
+    : "border-slate-light/50 focus:border-teal focus:ring-teal/20";
   return (
     <label className="block">
       {label && <span className="mb-1.5 block text-sm font-medium text-ink">{label}</span>}
       <select
-        className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm outline-none transition-colors focus:border-teal ${
-          error ? "border-coral" : "border-slate-light/50"
-        } ${className}`}
+        aria-invalid={error ? "true" : undefined}
+        className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm outline-none transition-shadow transition-colors focus:ring-2 ${state} ${className}`}
         {...props}
       >
         {children}
@@ -62,25 +76,56 @@ export function Select({ label, error, className = "", children, ...props }) {
   );
 }
 
-export function Card({ children, className = "" }) {
+export function Card({ children, className = "", hoverable = false }) {
+  const interaction = hoverable
+    ? "transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-teal/30"
+    : "";
   return (
-    <div className={`rounded-2xl border border-slate-light/30 bg-white shadow-sm ${className}`}>
+    <div className={`rounded-2xl border border-slate-light/30 bg-white shadow-sm ${interaction} ${className}`}>
       {children}
     </div>
   );
 }
 
-export function Badge({ children, tone = "teal" }) {
+export function Badge({ children, tone = "teal", dot = false, className = "" }) {
   const tones = {
     teal: "bg-teal-light text-teal-dark",
     marigold: "bg-marigold-light text-marigold-dark",
     coral: "bg-coral-light text-coral",
     slate: "bg-paper text-slate",
+    sage: "bg-sage-light text-sage",
+    ink: "bg-ink text-white",
   };
   return (
-    <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${tones[tone]}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${tones[tone]} ${className}`}>
+      {dot && <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />}
       {children}
     </span>
+  );
+}
+
+// Slim horizontal progress bar. `value`/`max` describe how far along something
+// is (e.g. tokens already seen out of the day's total). Purely presentational.
+export function Progress({ value = 0, max = 100, tone = "teal", className = "" }) {
+  const pct = max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 0;
+  const tones = {
+    teal: "bg-teal",
+    marigold: "bg-marigold",
+    sage: "bg-sage",
+  };
+  return (
+    <div
+      className={`h-2 w-full overflow-hidden rounded-full bg-slate-light/20 ${className}`}
+      role="progressbar"
+      aria-valuenow={Math.round(value)}
+      aria-valuemin={0}
+      aria-valuemax={max}
+    >
+      <div
+        className={`h-full rounded-full transition-[width] duration-700 ease-out ${tones[tone]}`}
+        style={{ width: `${pct}%` }}
+      />
+    </div>
   );
 }
 

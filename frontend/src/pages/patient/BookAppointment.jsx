@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate, Link } from "react-router-dom";
 import { MapPin } from "lucide-react";
+import { usePageTitle } from "../../lib/usePageTitle";
 import { api, withAuth, extractErrorMessage } from "../../lib/api";
 import { toBackendDate, todayIso, maxBookingIso } from "../../lib/date";
 import { Button, Input, Select, TextArea, Alert, StarRating, Spinner } from "../../components/ui";
 import TicketStub from "../../components/TicketStub";
 
 export default function BookAppointment() {
+  	usePageTitle("Book Appointment");
   const { doctorHospitalId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();

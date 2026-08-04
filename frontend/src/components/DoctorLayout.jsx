@@ -27,7 +27,7 @@ export default function DoctorLayout() {
       <main className="flex-1">
         <Outlet />
       </main>
-      <Footer />
+      <Footer variant="doctor" />
     </div>
   );
 }

@@ -3,8 +3,10 @@ import { Link } from "react-router-dom";
 import { useDoctorAuth } from "../../context/DoctorAuthContext";
 import { api, extractErrorMessage } from "../../lib/api";
 import { Button, Input, Select, TextArea, Alert } from "../../components/ui";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 export default function DoctorSignup() {
+  usePageTitle("Doctor Sign Up");
   const { signup } = useDoctorAuth();
   const [specializations, setSpecializations] = useState([]);
   const [form, setForm] = useState({

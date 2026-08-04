@@ -17,41 +17,124 @@ WEEKDAY_MAP = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 MAX_BOOKING_DAYS_AHEAD = 10
 
 
-def book_appointment(booking_data: AppointmentCreate, background_tasks: BackgroundTasks, current_patient: Patient, db: Session) -> Appointment:
+# def book_appointment(booking_data: AppointmentCreate, background_tasks: BackgroundTasks, current_patient: Patient, db: Session) -> Appointment:
+#     affiliation = db.query(DoctorHospital).filter(
+#         DoctorHospital.id == booking_data.doctor_hospital_id
+#     ).first()
+#     if not affiliation:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Doctor-hospital affiliation not found.")
+
+#     if affiliation.status != AffiliationStatus.approved:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This doctor is not currently bookable at this hospital.")
+
+#     if not affiliation.is_available:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This doctor is currently marked unavailable at this hospital.")
+
+#     today = date.today()
+#     if booking_data.appointment_date < today:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot book an appointment in the past.")
+
+#     max_date = today + timedelta(days=MAX_BOOKING_DAYS_AHEAD)
+#     if booking_data.appointment_date > max_date:
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail=f"Appointments can only be booked up to {MAX_BOOKING_DAYS_AHEAD} days in advance (latest date: {max_date}).",
+#         )
+
+#     weekday_name = WEEKDAY_MAP[booking_data.appointment_date.weekday()]
+#     if weekday_name not in affiliation.days:
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail=f"Doctor is not available on {weekday_name}. Available days: {affiliation.days}.",
+#         )
+
+
+#     same_day_filter = [
+#         Appointment.doctor_hospital_id == booking_data.doctor_hospital_id,
+#         Appointment.appointment_date == booking_data.appointment_date,
+#         Appointment.status.in_([AppointmentStatus.booked, AppointmentStatus.completed]),
+#     ]
+
+#     existing_count = db.query(Appointment).filter(*same_day_filter).count()
+
+#     if existing_count >= affiliation.patients_per_day:
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail="No slots available for this doctor on the selected date. Please choose a different date.",
+#         )
+
+#     max_token = db.query(func.max(Appointment.token_number)).filter(*same_day_filter).scalar() or 0
+#     token_number = max_token + 1
+    
+#     appointment = Appointment(
+#         patient_id=current_patient.id,
+#         doctor_hospital_id=booking_data.doctor_hospital_id,
+#         appointment_date=booking_data.appointment_date,
+#         token_number=token_number,
+#         patient_name=booking_data.patient_name,
+#         patient_age=booking_data.patient_age,
+#         patient_gender=booking_data.patient_gender,
+#         contact_phone=booking_data.contact_phone,
+#         reason=booking_data.reason,
+#         status=AppointmentStatus.booked,
+#         payment_mode=booking_data.payment_mode.value,
+#         payment_status=PaymentStatus.pending,
+#     )
+    
+#     db.add(appointment)
+#     db.commit()
+#     db.refresh(appointment)
+
+#     background_tasks.add_task(
+#         send_booking_confirmation_email,
+#         current_patient.email,
+#         booking_data.patient_name,
+#         appointment.doctor_hospital.doctor.name,
+#         appointment.doctor_hospital.hospital.name,
+#         appointment.doctor_hospital.hospital.address,
+#         booking_data.appointment_date.strftime("%d-%m-%Y"),
+#         appointment.token_number,
+#     )
+
+#     return appointment
+
+def _validate_booking_slot(db: Session, doctor_hospital_id: int, appointment_date: date):
+    """Shared validation used by both book_appointment() and the read-only
+    check_appointment_availability(). Raises HTTPException on any invalid
+    slot; on success returns (affiliation, would_be_token_number)."""
     affiliation = db.query(DoctorHospital).filter(
-        DoctorHospital.id == booking_data.doctor_hospital_id
+        DoctorHospital.id == doctor_hospital_id
     ).first()
     if not affiliation:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Doctor-hospital affiliation not found.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="This doctor is not listed at this hospital.")
 
     if affiliation.status != AffiliationStatus.approved:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This doctor is not currently bookable at this hospital.")
 
     if not affiliation.is_available:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This doctor is currently marked unavailable at this hospital.")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This doctor isn't currently taking bookings at this hospital.")
 
     today = date.today()
-    if booking_data.appointment_date < today:
+    if appointment_date < today:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot book an appointment in the past.")
 
     max_date = today + timedelta(days=MAX_BOOKING_DAYS_AHEAD)
-    if booking_data.appointment_date > max_date:
+    if appointment_date > max_date:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Appointments can only be booked up to {MAX_BOOKING_DAYS_AHEAD} days in advance (latest date: {max_date}).",
         )
 
-    weekday_name = WEEKDAY_MAP[booking_data.appointment_date.weekday()]
+    weekday_name = WEEKDAY_MAP[appointment_date.weekday()]
     if weekday_name not in affiliation.days:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"Doctor is not available on {weekday_name}. Available days: {affiliation.days}.",
         )
 
-
     same_day_filter = [
-        Appointment.doctor_hospital_id == booking_data.doctor_hospital_id,
-        Appointment.appointment_date == booking_data.appointment_date,
+        Appointment.doctor_hospital_id == doctor_hospital_id,
+        Appointment.appointment_date == appointment_date,
         Appointment.status.in_([AppointmentStatus.booked, AppointmentStatus.completed]),
     ]
 
@@ -65,7 +148,24 @@ def book_appointment(booking_data: AppointmentCreate, background_tasks: Backgrou
 
     max_token = db.query(func.max(Appointment.token_number)).filter(*same_day_filter).scalar() or 0
     token_number = max_token + 1
-    
+
+    return affiliation, token_number
+
+
+def check_appointment_availability(db: Session, doctor_hospital_id: int, appointment_date: date) -> dict:
+    """Read-only preview: is this date bookable? Uses the exact same
+    validation book_appointment() uses, without creating anything."""
+    try:
+        affiliation, token_number = _validate_booking_slot(db, doctor_hospital_id, appointment_date)
+    except HTTPException as e:
+        return {"available": False, "reason": e.detail}
+
+    return {"available": True, "fee": affiliation.fee, "would_be_token": token_number}
+
+
+def book_appointment(booking_data: AppointmentCreate, background_tasks: BackgroundTasks, current_patient: Patient, db: Session) -> Appointment:
+    affiliation, token_number = _validate_booking_slot(db, booking_data.doctor_hospital_id, booking_data.appointment_date)
+
     appointment = Appointment(
         patient_id=current_patient.id,
         doctor_hospital_id=booking_data.doctor_hospital_id,
@@ -166,6 +266,23 @@ def delete_appointment(appointment_id: int, db: Session) -> dict:
     return {"message": "Appointment deleted successfully."}
 
 # 
+def get_appointment_payment_status(appointment_id: int, current_patient: Patient, db: Session) -> dict:
+    """Read-only lookup, scoped to the requesting patient -- never lets a
+    patient see another patient's appointment payment info."""
+    appointment = db.query(Appointment).filter(
+        Appointment.id == appointment_id,
+        Appointment.patient_id == current_patient.id,
+    ).first()
+
+    if not appointment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Appointment not found.")
+
+    return {
+        "appointment_id": appointment.id,
+        "payment_mode": appointment.payment_mode.value,
+        "payment_status": appointment.payment_status.value,
+        "fee": appointment.doctor_hospital.fee,
+    }
 
 def initiate_online_payment(appointment_id: int, current_patient: Patient, db: Session) -> str:
     appointment = db.query(Appointment).filter(

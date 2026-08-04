@@ -27,7 +27,7 @@ export default function AdminLayout() {
       <main className="flex-1">
         <Outlet />
       </main>
-      <Footer />
+      <Footer variant="admin" />
     </div>
   );
 }

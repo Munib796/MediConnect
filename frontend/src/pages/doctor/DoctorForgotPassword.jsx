@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { api, extractErrorMessage } from "../../lib/api";
 import { Button, Input, Alert } from "../../components/ui";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 export default function DoctorForgotPassword() {
+  usePageTitle("Forgot Password");
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");

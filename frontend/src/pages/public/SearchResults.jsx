@@ -3,10 +3,12 @@ import { useSearchParams } from "react-router-dom";
 import { api } from "../../lib/api";
 import DoctorCard from "../../components/DoctorCard";
 import { Select, Spinner, Button } from "../../components/ui";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 const PAGE_SIZE = 10;
 
 export default function SearchResults() {
+  usePageTitle("Search Results");
   const [searchParams, setSearchParams] = useSearchParams();
   const [cities, setCities] = useState([]);
   const [specializations, setSpecializations] = useState([]);

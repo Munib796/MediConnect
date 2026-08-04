@@ -13,10 +13,36 @@ body {
   background-color: #F4F7F5;
   color: #10241F;
   font-family: 'Public Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .font-display {
   font-family: 'Fraunces', serif;
+}
+
+/* Accessible keyboard focus. Uses :focus-visible so a visible ring only
+   appears for keyboard/AT users, never on mouse click. Applied globally so
+   every interactive element clears the quality floor without per-component
+   wiring; components can still override with their own focus-visible styles. */
+:focus-visible {
+  outline: 2px solid #0D6E64;
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Respect the OS "reduce motion" setting: neutralize all the entrance and
+   ambient animations for anyone who has asked their system to minimize motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Ticket stub component: perforated edge look for confirmations/token displays */
@@ -55,6 +81,41 @@ body {
   font-family: 'IBM Plex Mono', monospace;
   font-weight: 600;
   letter-spacing: 0.02em;
+}
+
+/* Live "now serving" indicator: a solid dot with an expanding ring behind it.
+   The ring element uses the pulse-ring animation from the Tailwind config. */
+.live-dot {
+  position: relative;
+  display: inline-flex;
+  height: 8px;
+  width: 8px;
+  flex-shrink: 0;
+}
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: pulse-ring 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+.live-dot > span {
+  position: relative;
+  height: 8px;
+  width: 8px;
+  border-radius: 9999px;
+  background: currentColor;
+}
+
+/* Faint gridded "chit paper" backdrop used behind hero/queue surfaces, echoing
+   the ledger paper a clinic token is printed on. Subtle by design. */
+.chit-paper {
+  background-color: #F4F7F5;
+  background-image:
+    linear-gradient(rgba(13, 110, 100, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 110, 100, 0.05) 1px, transparent 1px);
+  background-size: 22px 22px;
 }
 
 /* subtle scrollbar */

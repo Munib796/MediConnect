@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { api, withAuth, extractErrorMessage } from "../../lib/api";
 import { Card, Badge, Spinner, Button, Alert } from "../../components/ui";
-
+import { usePageTitle } from "../../lib/usePageTitle";
 const STATUS_TONE = { booked: "teal", completed: "marigold", cancelled: "coral" };
 const PAYMENT_TONE = { pending: "coral", paid: "teal" };
 
 export default function DoctorAppointments() {
+  usePageTitle("Appointments");
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

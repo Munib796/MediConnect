@@ -1,11 +1,14 @@
 import { Outlet, Navigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import AssistantWidget from "./AssistantWidget";
+import { usePatientAuth } from "../context/PatientAuthContext";
 import { useDoctorAuth } from "../context/DoctorAuthContext";
 import { useAdminAuth } from "../context/AdminAuthContext";
 import { Spinner } from "./ui";
 
 export default function Layout() {
+  const { patient } = usePatientAuth();
   const { doctor, loading: doctorLoading } = useDoctorAuth();
   const { admin, loading: adminLoading } = useAdminAuth();
 
@@ -27,7 +30,8 @@ export default function Layout() {
       <main className="flex-1">
         <Outlet />
       </main>
-      <Footer />
+      <Footer variant="public" />
+      {patient && <AssistantWidget />}
     </div>
   );
 }

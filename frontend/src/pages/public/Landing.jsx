@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { usePageTitle } from "../../lib/usePageTitle";
 import { Search, ShieldCheck, Ticket, Star, Sparkles } from "lucide-react";
 import { api } from "../../lib/api";
 import { Button, Select, TextArea, Alert } from "../../components/ui";
 
 export default function Landing() {
+  usePageTitle(null);
   const navigate = useNavigate();
   const [cities, setCities] = useState([]);
   const [specializations, setSpecializations] = useState([]);

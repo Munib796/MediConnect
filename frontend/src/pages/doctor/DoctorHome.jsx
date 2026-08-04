@@ -2,8 +2,10 @@ import { Link } from "react-router-dom";
 import { ShieldCheck, Users, Wallet } from "lucide-react";
 import { useDoctorAuth } from "../../context/DoctorAuthContext";
 import { Button } from "../../components/ui";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 export default function DoctorHome() {
+  usePageTitle("Appointments");
   const { doctor } = useDoctorAuth();
 
   return (

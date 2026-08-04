@@ -5,11 +5,13 @@ import { AdminAuthProvider } from "./context/AdminAuthContext";
 import Layout from "./components/Layout";
 import DoctorLayout from "./components/DoctorLayout";
 import AdminLayout from "./components/AdminLayout";
+import ScrollToTop from "./components/ScrollToTop";
 import ProtectedPatientRoute from "./components/ProtectedPatientRoute";
 import ProtectedDoctorRoute from "./components/ProtectedDoctorRoute";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 
 import Landing from "./pages/public/Landing";
+import About from "./pages/public/About";
 import HospitalsList from "./pages/public/HospitalsList";
 import HospitalDetail from "./pages/public/HospitalDetail";
 import SearchResults from "./pages/public/SearchResults";
@@ -21,6 +23,9 @@ import ForgotPassword from "./pages/patient/ForgotPassword";
 import ResetPassword from "./pages/patient/ResetPassword";
 import BookAppointment from "./pages/patient/BookAppointment";
 import MyAppointments from "./pages/patient/MyAppointments";
+import Profile from "./pages/patient/Profile";
+import VerifyEmailChange from "./pages/patient/VerifyEmailChange";
+import NotFound from "./pages/public/NotFound";
 
 import DoctorHome from "./pages/doctor/DoctorHome";
 import DoctorSignup from "./pages/doctor/DoctorSignup";
@@ -47,9 +52,11 @@ export default function App() {
       <DoctorAuthProvider>
         <AdminAuthProvider>
           <BrowserRouter>
+            <ScrollToTop />
             <Routes>
               <Route element={<Layout />}>
                 <Route path="/" element={<Landing />} />
+                <Route path="/about" element={<About />} />
                 <Route path="/hospitals" element={<HospitalsList />} />
                 <Route path="/hospitals/:hospitalId" element={<HospitalDetail />} />
                 <Route path="/search" element={<SearchResults />} />
@@ -76,8 +83,17 @@ export default function App() {
                     </ProtectedPatientRoute>
                   }
                 />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedPatientRoute>
+                      <Profile />
+                    </ProtectedPatientRoute>
+                  }
+                />
+                <Route path="/profile/verify-email-change" element={<VerifyEmailChange />} />
 
-                <Route path="*" element={<Landing />} />
+                <Route path="*" element={<NotFound />} />
               </Route>
 
               <Route element={<DoctorLayout />}>

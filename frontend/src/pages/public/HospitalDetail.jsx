@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { usePageTitle } from "../../lib/usePageTitle";
 import { MapPin, Search } from "lucide-react";
 import { api } from "../../lib/api";
 import DoctorCard from "../../components/DoctorCard";
@@ -8,6 +9,7 @@ import { Select, Input, Spinner } from "../../components/ui";
 export default function HospitalDetail() {
   const { hospitalId } = useParams();
   const [hospital, setHospital] = useState(null);
+  usePageTitle(hospital?.name || "Hospital"); 
   const [doctors, setDoctors] = useState([]);
   const [specializations, setSpecializations] = useState([]);
   const [specializationId, setSpecializationId] = useState("");

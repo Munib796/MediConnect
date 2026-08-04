@@ -96,3 +96,20 @@ async def send_password_reset_email(email: str, token: str, role: str):
 
     fm = FastMail(conf)
     await fm.send_message(message)
+
+async def send_email_change_verification(new_email: str, token: str):
+    confirm_link = f"{settings.ORIGIN_URL}/profile/verify-email-change?token={token}"
+
+    message = MessageSchema(
+        subject="Confirm your new MediConnect email address",
+        recipients=[new_email],
+        body=f"""
+        <p>We received a request to change the email address on your MediConnect account to this one.</p>
+        <p><a href="{confirm_link}">Click here to confirm this email address</a></p>
+        <p>If you didn't request this, you can safely ignore this email. This link expires in 24 hours.</p>
+        """,
+        subtype=MessageType.html,
+    )
+
+    fm = FastMail(conf)
+    await fm.send_message(message)

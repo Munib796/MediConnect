@@ -3,8 +3,10 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { usePatientAuth } from "../../context/PatientAuthContext";
 import { extractErrorMessage } from "../../lib/api";
 import { Button, Input, Alert } from "../../components/ui";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 export default function Login() {
+  usePageTitle("Log In");
   const { login } = usePatientAuth();
   const navigate = useNavigate();
   const location = useLocation();

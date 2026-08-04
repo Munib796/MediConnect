@@ -13,3 +13,6 @@ cloudinary
 stripe
 alembic
 google-genai
+langchain
+langchain-google-genai
+langgraph

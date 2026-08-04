@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { api, withAuth, extractErrorMessage } from "../../lib/api";
 import { Card, Badge, Spinner, Button, Alert } from "../../components/ui";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 const STATUS_TONE = { pending: "marigold", approved: "teal", rejected: "coral" };
 
 export default function DoctorApplications() {
+  usePageTitle("My Applications");
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");

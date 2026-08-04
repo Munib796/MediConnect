@@ -27,13 +27,23 @@ from src.reviews.router import reviews_router
 from src.cities.router import cities_router
 from src.specializations.router import specializations_router
 from src.ai.router import ai_router
+from src.assistant.router import assistant_router
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="MediConnect")
 
+# @app.exception_handler(Exception)
+# async def global_exception_handler(request: Request, exc: Exception):
+#     return JSONResponse(
+#         status_code=500,
+#         content={"detail": "An unexpected error occurred. Please try again later."},
+#     )
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
+    import traceback
+    traceback.print_exc()
     return JSONResponse(
         status_code=500,
         content={"detail": "An unexpected error occurred. Please try again later."},
@@ -57,6 +67,7 @@ app.include_router(reviews_router)
 app.include_router(cities_router)
 app.include_router(specializations_router)
 app.include_router(ai_router)
+app.include_router(assistant_router)
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)

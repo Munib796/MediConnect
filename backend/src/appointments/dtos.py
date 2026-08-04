@@ -65,6 +65,7 @@ class AppointmentResponse(BaseModel):
     review_rating: Optional[int] = None
     review_comment: Optional[str] = None
     specialization_name: str
+    patients_per_day: int
 
     @field_serializer("appointment_date")
     def serialize_appointment_date(self, value: date) -> str:

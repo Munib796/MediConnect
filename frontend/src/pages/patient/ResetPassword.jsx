@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { api, extractErrorMessage } from "../../lib/api";
 import { Button, Input, Alert } from "../../components/ui";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 export default function ResetPassword() {
+  usePageTitle("Reset Password");
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
   const [newPassword, setNewPassword] = useState("");

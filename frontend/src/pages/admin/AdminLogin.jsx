@@ -3,8 +3,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { extractErrorMessage } from "../../lib/api";
 import { Button, Input, Alert } from "../../components/ui";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 export default function AdminLogin() {
+  usePageTitle("Admin Log In");
   const { login } = useAdminAuth();
   const navigate = useNavigate();
   const location = useLocation();

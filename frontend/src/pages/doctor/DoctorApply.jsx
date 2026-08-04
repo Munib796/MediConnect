@@ -2,10 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, withAuth, extractErrorMessage } from "../../lib/api";
 import { Button, Input, Select, Alert, Spinner } from "../../components/ui";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 const DAY_GROUPS = ["Mon-Wed", "Thu-Sat", "Mon-Sat"];
 
 export default function DoctorApply() {
+  usePageTitle("Apply to a Hospital");
   const navigate = useNavigate();
   const [hospitals, setHospitals] = useState([]);
   const [loadingHospitals, setLoadingHospitals] = useState(true);

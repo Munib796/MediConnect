@@ -1,18 +1,23 @@
 import { useEffect, useState } from "react";
+import { CalendarX } from "lucide-react";
 import { api, withAuth, extractErrorMessage } from "../../lib/api";
 import { Card, Badge, Button, Spinner, Alert } from "../../components/ui";
+import { StatusPill } from "../../components/QueueTracker";
+import ConfirmDialog from "../../components/ConfirmDialog";
+import { usePageTitle } from "../../lib/usePageTitle";
 
 const PAGE_SIZE = 15;
-const STATUS_TONE = { booked: "teal", completed: "marigold", cancelled: "coral" };
-const PAYMENT_TONE = { pending: "coral", paid: "teal" };
+const PAYMENT_TONE = { pending: "coral", paid: "sage" };
 
 export default function AdminAppointments() {
+  usePageTitle("All Appointments");
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [skip, setSkip] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actingId, setActingId] = useState(null);
+  const [pendingDelete, setPendingDelete] = useState(null);
 
   useEffect(() => {
     load();
@@ -42,12 +47,13 @@ export default function AdminAppointments() {
     }
   }
 
-  async function handleDelete(id) {
-    if (!confirm("Delete this appointment? This can't be undone.")) return;
+  async function confirmDelete() {
+    const id = pendingDelete;
     setError("");
     setActingId(id);
     try {
       await api.delete(`/appointments/${id}`, withAuth("admin"));
+      setPendingDelete(null);
       load();
     } catch (err) {
       setError(extractErrorMessage(err));
@@ -68,7 +74,15 @@ export default function AdminAppointments() {
       {loading ? (
         <div className="flex justify-center py-16 text-teal"><Spinner /></div>
       ) : items.length === 0 ? (
-        <p className="mt-8 text-slate">No appointments yet.</p>
+        <Card className="mt-8 flex flex-col items-center gap-4 p-12 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-teal-light text-teal">
+            <CalendarX size={26} />
+          </span>
+          <div>
+            <p className="font-display text-lg font-semibold text-ink">No appointments yet</p>
+            <p className="mt-1 text-sm text-slate">Bookings across all hospitals will appear here.</p>
+          </div>
+        </Card>
       ) : (
         <div className="mt-8 flex flex-col gap-3">
           {items.map((appt) => (
@@ -85,8 +99,8 @@ export default function AdminAppointments() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <Badge tone={STATUS_TONE[appt.status]}>{appt.status}</Badge>
-                <Badge tone={PAYMENT_TONE[appt.payment_status]}>
+                <StatusPill status={appt.status} />
+                <Badge tone={PAYMENT_TONE[appt.payment_status]} dot>
                   {appt.payment_mode} · {appt.payment_status}
                 </Badge>
 
@@ -96,7 +110,7 @@ export default function AdminAppointments() {
                   </Button>
                 )}
                 {appt.status === "booked" && (
-                  <Button variant="danger" disabled={actingId === appt.id} onClick={() => handleDelete(appt.id)}>
+                  <Button variant="danger" disabled={actingId === appt.id} onClick={() => setPendingDelete(appt.id)}>
                     Delete
                   </Button>
                 )}
@@ -117,6 +131,16 @@ export default function AdminAppointments() {
           </Button>
         </div>
       )}
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title="Delete appointment?"
+        message="This permanently removes the booking and frees the token. This can't be undone."
+        confirmLabel="Delete"
+        loading={actingId !== null && actingId === pendingDelete}
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </div>
   );
 }

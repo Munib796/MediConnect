@@ -94,3 +94,10 @@ class Appointment(Base):
     @property
     def specialization_name(self) -> str:
         return self.doctor_hospital.doctor.specialization.name
+
+    @property
+    def patients_per_day(self) -> int:
+        # The clinic's daily token capacity for this doctor-hospital listing.
+        # Surfaced so the patient's queue view can show their token against the
+        # day's total without a second request.
+        return self.doctor_hospital.patients_per_day
