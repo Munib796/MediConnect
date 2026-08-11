@@ -24,6 +24,8 @@ import ResetPassword from "./pages/patient/ResetPassword";
 import BookAppointment from "./pages/patient/BookAppointment";
 import MyAppointments from "./pages/patient/MyAppointments";
 import Profile from "./pages/patient/Profile";
+import PaymentSuccess from "./pages/patient/PaymentSuccess";
+import PaymentCancelled from "./pages/patient/PaymentCancelled";
 import VerifyEmailChange from "./pages/patient/VerifyEmailChange";
 import NotFound from "./pages/public/NotFound";
 
@@ -92,6 +94,13 @@ export default function App() {
                   }
                 />
                 <Route path="/profile/verify-email-change" element={<VerifyEmailChange />} />
+
+                {/* Stripe checkout return URLs (see initiate_online_payment in the
+                    backend). Deliberately NOT wrapped in ProtectedPatientRoute: a
+                    payment confirmation should never be replaced by a login wall,
+                    and the pages degrade gracefully without a token. */}
+                <Route path="/payment-success" element={<PaymentSuccess />} />
+                <Route path="/payment-cancelled" element={<PaymentCancelled />} />
 
                 <Route path="*" element={<NotFound />} />
               </Route>

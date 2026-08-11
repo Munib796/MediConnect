@@ -1,4 +1,13 @@
+import { useId, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { twMerge } from "tailwind-merge";
+
+// Border/ring treatment shared by every field, keyed off validation state.
+function fieldState(error, valid) {
+  if (error) return "border-coral focus:border-coral focus:ring-coral/20";
+  if (valid) return "border-sage focus:border-sage focus:ring-sage/20";
+  return "border-slate-light/50 focus:border-teal focus:ring-teal/20";
+}
 
 export function Button({ children, variant = "primary", className = "", ...props }) {
   const base =
@@ -17,37 +26,80 @@ export function Button({ children, variant = "primary", className = "", ...props
   );
 }
 
-export function Input({ label, error, valid, className = "", ...props }) {
-  const state = error
-    ? "border-coral focus:border-coral focus:ring-coral/20"
-    : valid
-    ? "border-sage focus:border-sage focus:ring-sage/20"
-    : "border-slate-light/50 focus:border-teal focus:ring-teal/20";
+export function Input({ label, error, valid, hint, className = "", ...props }) {
+  const autoId = useId();
+  const describedBy = error ? `${autoId}-error` : hint ? `${autoId}-hint` : undefined;
   return (
     <label className="block">
       {label && <span className="mb-1.5 block text-sm font-medium text-ink">{label}</span>}
       <input
         aria-invalid={error ? "true" : undefined}
-        className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-shadow transition-colors placeholder:text-slate-light focus:ring-2 ${state} ${className}`}
+        aria-describedby={describedBy}
+        className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-shadow transition-colors placeholder:text-slate-light focus:ring-2 ${fieldState(error, valid)} ${className}`}
         {...props}
       />
-      {error && <span className="mt-1 block text-xs text-coral">{error}</span>}
+      {error ? (
+        <span id={`${autoId}-error`} className="mt-1 block text-xs text-coral">{error}</span>
+      ) : (
+        hint && <span id={`${autoId}-hint`} className="mt-1 block text-xs text-slate-light">{hint}</span>
+      )}
     </label>
   );
 }
 
+/**
+ * Password field with a show/hide toggle. Kept separate from `Input` because the
+ * toggle is a real <button>, and a button nested inside a <label> would have its
+ * clicks forwarded to the input — so this wires `htmlFor`/`id` explicitly instead.
+ */
+export function PasswordInput({ label = "Password", error, valid, hint, className = "", id, ...props }) {
+  const [visible, setVisible] = useState(false);
+  const autoId = useId();
+  const inputId = id || autoId;
+  const describedBy = error ? `${inputId}-error` : hint ? `${inputId}-hint` : undefined;
+
+  return (
+    <div className="block">
+      <label htmlFor={inputId} className="mb-1.5 block text-sm font-medium text-ink">
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          id={inputId}
+          type={visible ? "text" : "password"}
+          aria-invalid={error ? "true" : undefined}
+          aria-describedby={describedBy}
+          className={`w-full rounded-xl border px-4 py-2.5 pr-12 text-sm outline-none transition-shadow transition-colors placeholder:text-slate-light focus:ring-2 ${fieldState(error, valid)} ${className}`}
+          {...props}
+        />
+        <button
+          type="button"
+          onClick={() => setVisible((v) => !v)}
+          // The input already announces itself; this button only needs to say
+          // what it does. tabIndex stays default so keyboard users can reach it.
+          aria-label={visible ? "Hide password" : "Show password"}
+          aria-pressed={visible}
+          className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg p-2 text-slate-light transition-colors hover:text-teal focus-visible:text-teal"
+        >
+          {visible ? <EyeOff size={16} /> : <Eye size={16} />}
+        </button>
+      </div>
+      {error ? (
+        <span id={`${inputId}-error`} className="mt-1 block text-xs text-coral">{error}</span>
+      ) : (
+        hint && <span id={`${inputId}-hint`} className="mt-1 block text-xs text-slate-light">{hint}</span>
+      )}
+    </div>
+  );
+}
+
 export function TextArea({ label, error, valid, className = "", ...props }) {
-  const state = error
-    ? "border-coral focus:border-coral focus:ring-coral/20"
-    : valid
-    ? "border-sage focus:border-sage focus:ring-sage/20"
-    : "border-slate-light/50 focus:border-teal focus:ring-teal/20";
   return (
     <label className="block">
       {label && <span className="mb-1.5 block text-sm font-medium text-ink">{label}</span>}
       <textarea
         aria-invalid={error ? "true" : undefined}
-        className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-shadow transition-colors placeholder:text-slate-light focus:ring-2 ${state} ${className}`}
+        className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-shadow transition-colors placeholder:text-slate-light focus:ring-2 ${fieldState(error, valid)} ${className}`}
         {...props}
       />
       {error && <span className="mt-1 block text-xs text-coral">{error}</span>}
@@ -56,17 +108,12 @@ export function TextArea({ label, error, valid, className = "", ...props }) {
 }
 
 export function Select({ label, error, valid, className = "", children, ...props }) {
-  const state = error
-    ? "border-coral focus:border-coral focus:ring-coral/20"
-    : valid
-    ? "border-sage focus:border-sage focus:ring-sage/20"
-    : "border-slate-light/50 focus:border-teal focus:ring-teal/20";
   return (
     <label className="block">
       {label && <span className="mb-1.5 block text-sm font-medium text-ink">{label}</span>}
       <select
         aria-invalid={error ? "true" : undefined}
-        className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm outline-none transition-shadow transition-colors focus:ring-2 ${state} ${className}`}
+        className={`w-full rounded-xl border bg-white px-4 py-2.5 text-sm outline-none transition-shadow transition-colors focus:ring-2 ${fieldState(error, valid)} ${className}`}
         {...props}
       >
         {children}
@@ -132,20 +179,38 @@ export function Progress({ value = 0, max = 100, tone = "teal", className = "" }
 export function Spinner({ className = "" }) {
   return (
     <div
-      className={`h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent ${className}`}
+      // twMerge (not concatenation) so a caller passing e.g. "h-4 w-4" actually
+      // overrides the default size instead of losing to it on CSS source order.
+      className={twMerge(
+        "h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent",
+        className
+      )}
       role="status"
     />
   );
 }
 
-export function Alert({ children, tone = "coral" }) {
+/**
+ * Inline message block. Pass `role="alert"` when the message appears in response
+ * to a user action (e.g. a failed login) so assistive tech announces it.
+ */
+export function Alert({ children, tone = "coral", role, icon = null, className = "" }) {
   const tones = {
     coral: "bg-coral-light text-coral border-coral/20",
     teal: "bg-teal-light text-teal-dark border-teal/20",
     marigold: "bg-marigold-light text-marigold-dark border-marigold/30",
   };
   return (
-    <div className={`rounded-xl border px-4 py-3 text-sm ${tones[tone]}`}>{children}</div>
+    <div role={role} className={`rounded-xl border px-4 py-3 text-sm ${tones[tone]} ${className}`}>
+      {icon ? (
+        <span className="flex items-start gap-2.5">
+          <span className="mt-0.5 shrink-0" aria-hidden="true">{icon}</span>
+          <span>{children}</span>
+        </span>
+      ) : (
+        children
+      )}
+    </div>
   );
 }
 

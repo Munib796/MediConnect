@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { AlertCircle, ArrowLeft } from "lucide-react";
 import { useAdminAuth } from "../../context/AdminAuthContext";
 import { extractErrorMessage } from "../../lib/api";
-import { Button, Input, Alert } from "../../components/ui";
+import { Button, Input, PasswordInput, Alert, Spinner } from "../../components/ui";
+import AuthShell from "../../components/AuthShell";
 import { usePageTitle } from "../../lib/usePageTitle";
 
 export default function AdminLogin() {
@@ -14,14 +16,16 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const from = location.state?.from;
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      await login(form.email, form.password);
-      const from = location.state?.from;
-      navigate(from?.pathname || "/admin", { state: from?.state });
+      await login(form.email.trim(), form.password);
+      const target = from ? `${from.pathname}${from.search || ""}` : "/admin";
+      navigate(target, { state: from?.state });
     } catch (err) {
       setError(extractErrorMessage(err));
     } finally {
@@ -30,31 +34,61 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-6 py-24">
-      <h1 className="font-display text-2xl font-semibold text-ink">Admin login</h1>
-      <p className="mt-1 text-sm text-slate">Restricted access for MediConnect administrators.</p>
-
-      {error && <div className="mt-4"><Alert>{error}</Alert></div>}
-
-      <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
+    <AuthShell
+      variant="admin"
+      title="Admin login"
+      subtitle="Restricted access for MediConnect administrators."
+      error={
+        error && (
+          <Alert role="alert" icon={<AlertCircle size={15} />}>
+            {error}
+          </Alert>
+        )
+      }
+    >
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4" aria-busy={loading}>
         <Input
           label="Email"
           type="email"
+          name="email"
+          autoComplete="email"
+          autoFocus
           required
+          placeholder="admin@mediconnect.com"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
-        <Input
+        <PasswordInput
           label="Password"
-          type="password"
+          name="password"
+          autoComplete="current-password"
           required
+          placeholder="Your password"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
-        <Button type="submit" disabled={loading} className="justify-center">
-          {loading ? "Logging in..." : "Log in"}
+
+        <Button type="submit" disabled={loading} className="mt-2 w-full justify-center">
+          {loading ? (
+            <>
+              <Spinner className="h-4 w-4" /> Logging in...
+            </>
+          ) : (
+            "Log in"
+          )}
         </Button>
       </form>
-    </div>
+
+      {/* No signup link here by design — admin accounts are provisioned, not
+          self-registered. The only other destination is back to the public site. */}
+      <div className="mt-7 border-t border-slate-light/20 pt-5">
+        <Link
+          to="/"
+          className="flex items-center gap-2 text-xs font-medium text-slate transition-colors hover:text-teal"
+        >
+          <ArrowLeft size={14} aria-hidden="true" /> Back to MediConnect
+        </Link>
+      </div>
+    </AuthShell>
   );
 }
