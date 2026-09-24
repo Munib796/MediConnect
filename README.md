@@ -5,7 +5,7 @@ An Assistant Based full-stack hospital and doctor appointment booking platform b
 ## Features
 
 ### Patient Portal
-- **AI Booking Assistant** — conversational Gemini-powered chatbot build using Langgraph multiagent conecept ,helps patients find the right doctor and book appointments through natural language
+- **AI Booking Assistant** — conversational Gemini-powered chatbot build using Langgraph multiagent concept, helps patients find the right doctor and book appointments through natural language
 - Search doctors by city and specialization across Pakistan
 - Browse hospitals and see doctors affiliated with each location
 - Book appointments (cash or online payment via Stripe)
